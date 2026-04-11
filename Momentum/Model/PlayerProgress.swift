@@ -13,4 +13,6 @@ struct PlayerProgress {
     var currentXP: Int
     var xpForNextLevel: Int
     var streak: Int
+    var lastDailyReset: Date
+    var didCompleteDailyGoal: Bool
 }
