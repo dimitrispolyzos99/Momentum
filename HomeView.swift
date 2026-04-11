@@ -11,6 +11,21 @@ import SwiftData
 struct HomeView: View {
     @StateObject var viewModel = HomeViewModel()
     @Query private var habits: [Habit]
+    @Query private var missions: [Mission]
+    
+    private var displayedMissions: [Mission] {
+        let selectedHabits = habits.filter { $0.isSelected }
+        
+        return missions.filter { missions in
+            if let relatedHabit = missions.relatedHabit {
+                return selectedHabits.contains(where : { $0.id == relatedHabit.id})
+            } else {
+                return true
+            }
+        }
+        .prefix(5)
+        .map { $0 }
+    }
     
     var body: some View {
         NavigationStack {
@@ -30,8 +45,13 @@ struct HomeView: View {
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .foregroundColor(.white)
                     
-                    ForEach($viewModel.missions) { $mission in
-                        MissionCardView(mission: mission, onToggle: { viewModel.completeMission(mission) })
+                    ForEach(displayedMissions) { mission in
+                        MissionCardView(
+                            mission: mission,
+                            onToggle: {
+                                viewModel.completeMission(mission, missions: displayedMissions)
+                            }
+                        )
                     }
                     
                     HStack{
@@ -56,7 +76,7 @@ struct HomeView: View {
                         ForEach(habits) { habit in
                             if habit.isSelected {
                                 HabitsCardView(
-                                    habit: habit, onToggle: {viewModel.toggleHabitdSelection(habit)})
+                                    habit: habit, onToggle: {habit.isSelected.toggle()})
                             }
                             }
                         }
@@ -66,6 +86,10 @@ struct HomeView: View {
             .padding()
             }
         }
+        .onAppear {
+            viewModel.checkDailyReset(missions: missions)
+        }
+
     }
 }
 

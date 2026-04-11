@@ -8,52 +8,37 @@
 import Foundation
 import Combine
 
-
 class HomeViewModel: ObservableObject {
-
-    @Published var habits: [Habit]
     @Published var playerProgress: PlayerProgress
-    @Published var missions: [Mission]
 
     init() {
-        self.playerProgress = PlayerProgress(level: 1, currentXP: 0, xpForNextLevel: 100, streak: 0)
-
-        let habit1 = Habit(title: "Tennis", isSelected: true, icon: "tennis.racket")
-        let habit2 = Habit(title: "Video Games", isSelected: false, icon: "gamecontroller")
-
-        let mission1 = Mission(title: "Drink Water", rewardXP: 50, difficulty: 1, isCompleted: false)
-        let mission2 = Mission(title: "Complete God of War", rewardXP: 200, difficulty: 2, isCompleted: false , relatedHabit: habit2)
-        let mission3 = Mission(title: "Read a book", rewardXP: 250, difficulty: 1, isCompleted: false)
-        let mission4 = Mission(title: "Complete The Witcher", rewardXP: 300, difficulty: 3, isCompleted: false)
-
-        self.habits = [habit1, habit2]
-        self.missions = [mission1, mission2, mission3, mission4]
+        self.playerProgress = PlayerProgress(level: 1, currentXP: 0, xpForNextLevel: 100, streak: 0, lastDailyReset: Date(), didCompleteDailyGoal: false)
     }
 
-    func toggleHabitdSelection(_ habit: Habit) {
-        if let index = self.habits.firstIndex(of: habit) {
-            let updatedHabit = self.habits[index]
-            updatedHabit.isSelected.toggle()
-            self.habits[index] = updatedHabit
-        }
-    }
+    func completeMission(_ mission: Mission, missions :[Mission]) {
+        mission.isCompleted.toggle()
 
-    func completeMission(_ mission: Mission) {
-        guard let index = missions.firstIndex(where: { $0.id == mission.id }) else { return }
-
-        let updated = mission
-        updated.isCompleted.toggle()
-        missions[index] = updated
-
-        let xpChange = updated.isCompleted ? mission.rewardXP : -mission.rewardXP
+        let xpChange = mission.isCompleted ? mission.rewardXP : -mission.rewardXP
         applyXPChange(amount: xpChange)
+        
+        let completedCount = missions.filter { $0.isCompleted }.count
+        
+        if completedCount >= 3 && !playerProgress.didCompleteDailyGoal {
+            playerProgress.didCompleteDailyGoal = true
+            playerProgress.streak += 1
+            
+            applyXPChange(amount: 150)
+        }
+
     }
 
     private func applyXPChange(amount: Int) {
         playerProgress.currentXP += amount
+
         if playerProgress.currentXP < 0 && playerProgress.level == 1 {
             playerProgress.currentXP = 0
         }
+
         recalculateProgress()
     }
 
@@ -74,14 +59,21 @@ class HomeViewModel: ObservableObject {
             playerProgress.currentXP = 0
         }
     }
-    func addHabit(title: String) {
-        let newHabit = Habit(
-            title: title,
-            isSelected: false,
-            icon: "circle"
-        )
-        
-        habits.append(newHabit)
-    }
-}
+    func checkDailyReset(missions: [Mission]) {
+        let calendar = Calendar.current
 
+        if calendar.isDate(playerProgress.lastDailyReset, inSameDayAs: Date()) {
+            return
+        }
+
+        if !playerProgress.didCompleteDailyGoal {
+            playerProgress.streak = 0
+        }
+
+        for mission in missions {
+            mission.isCompleted = false
+        }
+
+        playerProgress.didCompleteDailyGoal = false
+        playerProgress.lastDailyReset = Date()
+    }}
