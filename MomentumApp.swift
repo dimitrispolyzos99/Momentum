@@ -7,13 +7,27 @@
 
 import SwiftUI
 import SwiftData
+import UserNotifications
 
 @main
 struct MomentumApp: App {
+    
+    init() {
+        requestNotificationPermission()
+    }
+    
     var body: some Scene {
         WindowGroup {
             HomeView()
         }
-        .modelContainer(for : [Habit.self, Mission.self])
+        .modelContainer(for : [Habit.self, Mission.self, PlayerProgress.self])
     }
-}
+    private func requestNotificationPermission() {
+        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, _ in
+            if granted {
+                NotificationManager.scheduleDailyReminder()
+                NotificationManager.scheduleStreakReminder()
+            }
+        }
+    }
+}	
