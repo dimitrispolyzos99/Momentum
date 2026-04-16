@@ -17,7 +17,7 @@ struct MissionCardView: View {
         ZStack {
             
             RoundedRectangle(cornerRadius: 20)
-                .fill(offset > 0 ? Color.green.opacity(min(offset / 120.0, CGFloat(0.4))) : Color.clear)
+                .fill(offset > 0 ? Color.purple.opacity(min(offset / 120.0, CGFloat(0.4))) : Color.clear)
             
             VStack(alignment: .leading, spacing: 8) {
                 if !mission.isCompleted {
@@ -51,7 +51,6 @@ struct MissionCardView: View {
                 RoundedRectangle(cornerRadius: 20)
                     .stroke(Color.purple, lineWidth: 2)
             )
-//            .background(.ultraThinMaterial)
             .cornerRadius(20)
             .gesture(
                 DragGesture()
@@ -64,8 +63,6 @@ struct MissionCardView: View {
                     .onEnded { _ in
                         if offset > 100 {
                             onToggle()
-                            withAnimation(.spring()) {
-                            }
                         }
                         withAnimation(.spring()) {
                             offset = 0
