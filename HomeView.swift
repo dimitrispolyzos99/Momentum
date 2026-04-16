@@ -5,7 +5,6 @@
 //  Created by Dimitris Poluzos on 31/3/26.
 //
 
-
 import SwiftUI
 import SwiftData
 
@@ -147,7 +146,7 @@ struct HomeView: View {
         let defaults = [
             Habit(title: "Workout", isSelected: false, icon: "figure.strengthtraining.traditional"),
             Habit(title: "Read", isSelected: false, icon: "book"),
-            Habit(title: "Drink Water", isSelected: true, icon: "drop"),
+            Habit(title: "Drink Water", isSelected: false, icon: "drop"),
             Habit(title: "Walk", isSelected: false, icon: "figure.walk"),
             Habit(title: "Meditate", isSelected: false, icon: "brain"),
             Habit(title: "Journal", isSelected: false, icon: "square.and.pencil"),
@@ -165,34 +164,39 @@ struct HomeView: View {
         let today = missions.filter { Calendar.current.isDateInToday($0.assignedDate) }
         guard today.isEmpty else { return }
 
+        let streak = playerProgress?.streak ?? 0
+        let tier = min(streak / 3, 2)
+
         let selectedHabits = habits.filter { $0.isSelected }
+        let selectedHabitTitles = selectedHabits.map { $0.title }
 
-        var pool: [(title: String, xp: Int, difficulty: Int, habit: Habit?)] = [
-            ("Drink 3 bottles of water today", 120, 2, nil),
-            ("Help a stranger", 100, 2, nil),
-            ("Stay focused for 30 minutes", 70, 1, nil),
-            ("Take a 10 minute walk", 60, 1, nil),
-        ]
-
-        for habit in selectedHabits {
-            switch habit.title {
-            case "Workout": pool.append(("Workout 20 minutes", 110, 2, habit))
-            case "Read": pool.append(("Read 10 pages", 80, 1, habit))
-            case "Drink Water": pool.append(("Drink 2 more glasses of water", 55, 1, habit))
-            case "Walk": pool.append(("Walk 15 minutes", 70, 1, habit))
-            case "Meditate": pool.append(("Meditate for 5 minutes", 75, 1, habit))
-            case "Journal": pool.append(("Write 3 journal lines", 65, 1, habit))
-            case "Stretch": pool.append(("Stretch for 5 minutes", 50, 1, habit))
-            case "Sleep Early": pool.append(("Sleep before 11 PM", 90, 2, habit))
-            case "Study Swift": pool.append(("Study Swift for 20 minutes", 120, 2, habit))
-            case "No Sugar": pool.append(("Avoid sugar today", 100, 2, habit))
-            default: break
+        let habitTemplates = MissionTemplate.all
+            .filter { template in
+                guard let habitTitle = template.habitTitle else { return false }
+                return selectedHabitTitles.contains(habitTitle)
             }
+            .shuffled()
+            .prefix(5)
+
+        var picked = Array(habitTemplates)
+
+        if picked.count < 5 {
+            let generalTemplates = MissionTemplate.all
+                .filter { $0.habitTitle == nil }
+                .shuffled()
+                .prefix(5 - picked.count)
+            picked += generalTemplates
         }
 
-        let picked = pool.shuffled().prefix(5)
-        for m in picked {
-            let mission = Mission(title: m.title, rewardXP: m.xp, difficulty: m.difficulty, isCompleted: false, relatedHabit: m.habit)
+        for template in picked {
+            let habit = selectedHabits.first { $0.title == template.habitTitle }
+            let mission = Mission(
+                title: template.title(for: tier),
+                rewardXP: template.xp(for: tier),
+                difficulty: tier + 1,
+                isCompleted: false,
+                relatedHabit: habit
+            )
             modelContext.insert(mission)
         }
     }
@@ -201,3 +205,4 @@ struct HomeView: View {
 #Preview {
     HomeView()
 }
+
