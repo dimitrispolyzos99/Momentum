@@ -38,6 +38,10 @@ struct SignupView: View {
                     SecureField("Password", text: $viewModel.password)
                         .textFieldStyle(.roundedBorder)
                     
+                    TextField("Username", text: $viewModel.fullname)
+                        .textFieldStyle(.roundedBorder)
+                        .autocapitalization(.none)
+                    
                     if let error = viewModel.errorMessage {
                         Text(error)
                             .foregroundColor(.red)
@@ -60,7 +64,7 @@ struct SignupView: View {
                 }
                 .padding()
                 .fullScreenCover(isPresented: $viewModel.isLoggedIn) {
-                    Text("Welcome aboard")
+                    LoginView()
                 }
             }
         }

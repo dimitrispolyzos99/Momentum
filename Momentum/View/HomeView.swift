@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SwiftData
+import FirebaseAuth
 
 struct HomeView: View {
     @StateObject var viewModel = HomeViewModel()
@@ -41,7 +42,16 @@ struct HomeView: View {
                         if let progress = playerProgress {
                             LevelCardView(progress: progress)
                         }
-
+                        HStack{
+                            Button("Log out") {
+                                try? Auth.auth().signOut()
+                            }
+                            NavigationLink("Chat") {
+                                NewMessageView()
+                            }
+                            .padding()
+                            .foregroundColor(.purple)
+                        }
                         Text("Today's Missions")
                             .font(.title2)
                             .bold()

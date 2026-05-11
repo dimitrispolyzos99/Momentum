@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		56DCBF352FAE585D00985E34 /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = 56DCBF342FAE585D00985E34 /* FirebaseCore */; };
 		56DCBF3B2FAE668900985E34 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 56DCBF3A2FAE668900985E34 /* FirebaseAuth */; };
+		56DCBF472FAFC5C400985E34 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 56DCBF462FAFC5C400985E34 /* FirebaseFirestore */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -46,6 +47,7 @@
 			files = (
 				56DCBF352FAE585D00985E34 /* FirebaseCore in Frameworks */,
 				56DCBF3B2FAE668900985E34 /* FirebaseAuth in Frameworks */,
+				56DCBF472FAFC5C400985E34 /* FirebaseFirestore in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -107,6 +109,7 @@
 			packageProductDependencies = (
 				56DCBF342FAE585D00985E34 /* FirebaseCore */,
 				56DCBF3A2FAE668900985E34 /* FirebaseAuth */,
+				56DCBF462FAFC5C400985E34 /* FirebaseFirestore */,
 			);
 			productName = Momentum;
 			productReference = 563F80682F7C6075003A945A /* Momentum.app */;
@@ -502,6 +505,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 56DCBF322FAE54D400985E34 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseAuth;
+		};
+		56DCBF462FAFC5C400985E34 /* FirebaseFirestore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 56DCBF322FAE54D400985E34 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseFirestore;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

@@ -8,6 +8,7 @@
 import Foundation
 import FirebaseAuth
 import Combine
+import FirebaseFirestore
 
 class LoginViewModel: ObservableObject {
     @Published var email = ""
@@ -15,17 +16,18 @@ class LoginViewModel: ObservableObject {
     @Published var isLoggedIn = false
     @Published var errorMessage: String?
     @Published var isLoading = false
-
+    @Published var fullname = ""
+    
     // Validation logic
     var isEmailValid: Bool {
         let pattern = #"^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$"#
         return email.range(of: pattern, options: [.regularExpression, .caseInsensitive]) != nil
     }
-
+    
     var canSubmit: Bool {
         !isLoading && !email.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty && !password.isEmpty && isEmailValid
     }
-
+    
     func login() {
         errorMessage = nil
         
@@ -34,7 +36,7 @@ class LoginViewModel: ObservableObject {
             errorMessage = AuthError.invalidEmail.errorDescription
             return
         }
-
+        
         isLoading = true
         
         Auth.auth().signIn(withEmail: email, password: password) { [weak self] result, error in
@@ -50,7 +52,7 @@ class LoginViewModel: ObservableObject {
             }
         }
     }
-
+    
     private func mapFirebaseError(_ error: NSError) -> String {
         let authCode = AuthErrorCode(rawValue: error.code)
         let mappedError: AuthError
@@ -68,19 +70,36 @@ class LoginViewModel: ObservableObject {
     }
     func signUp() {
         errorMessage = nil
-
         isLoading = true
         
         Auth.auth().createUser(withEmail: email, password: password) { [weak self] result, error in
-            DispatchQueue.main.async {
-                self?.isLoading = false
-                
-                if let error = error as NSError? {
+            if let error = error as NSError? {
+                DispatchQueue.main.async {
+                    self?.isLoading = false
                     self?.errorMessage = self?.mapFirebaseError(error)
-                } else if let user = result?.user {
-                    // Επιτυχής εγγραφή και αυτόματο login
-                    KeychainManager.shared.save(key: "userToken", value: user.uid)
-                    self?.isLoggedIn = true
+                }
+            } else if let user = result?.user {
+                // 1. Προετοιμασία των δεδομένων του χρήστη
+                let userData: [String: Any] = [
+                    "uid": user.uid,
+                    "fullname": self?.fullname ?? "",
+                    "email": self?.email ?? ""
+                ]
+                
+                // 2. Αποθήκευση στο Firestore στην collection "users"
+                // Χρησιμοποιούμε το user.uid ως όνομα του εγγράφου (Document ID)
+                Firestore.firestore().collection("users").document(user.uid).setData(userData) { error in
+                    DispatchQueue.main.async {
+                        self?.isLoading = false
+                        
+                        if let error = error {
+                            self?.errorMessage = "Σφάλμα βάσης: \(error.localizedDescription)"
+                        } else {
+                            // Επιτυχία! Σώζουμε το token και προχωράμε
+                            KeychainManager.shared.save(key: "userToken", value: user.uid)
+                            self?.isLoggedIn = true
+                        }
+                    }
                 }
             }
         }
