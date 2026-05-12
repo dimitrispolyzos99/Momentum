@@ -46,8 +46,8 @@ struct HomeView: View {
                             Button("Log out") {
                                 try? Auth.auth().signOut()
                             }
-                            NavigationLink("Chat") {
-                                NewMessageView()
+                            NavigationLink ("Chat") {
+                                MainMessagesView()
                             }
                             .padding()
                             .foregroundColor(.purple)

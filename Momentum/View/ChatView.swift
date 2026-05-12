@@ -81,7 +81,7 @@ extension ChatView {
                 .padding(10)
                 .background(Color.purple.opacity(0.1))
                 .cornerRadius(20)
-                .foregroundColor(.black)
+                .foregroundColor(.white)
             
             Button {
                 chatViewModel.sendMessage()
