@@ -46,14 +46,3 @@ struct LevelCardView: View {
 
     }
 }
-
-#Preview {
-    LevelCardView(progress: PlayerProgress(
-        level: 1,
-        currentXP: 50,
-        xpForNextLevel: 100,
-        streak: 1,
-        lastDailyReset: Date(),
-        didCompleteDailyGoal: false
-    ))
-}

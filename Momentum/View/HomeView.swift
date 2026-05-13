@@ -19,16 +19,21 @@ struct HomeView: View {
     @Environment(\.modelContext) private var modelContext
 
     private var playerProgress: PlayerProgress? {
-        progressList.first
+        progressList.first { $0.userId == currentUserId }
     }
-
+    private var currentUserId: String {
+        Auth.auth().currentUser?.uid ?? ""
+    }
+    
     private var displayedMissions: [Mission] {
-        let today = missions.filter { Calendar.current.isDateInToday($0.assignedDate) }
+        let today = missions.filter {
+            Calendar.current.isDateInToday($0.assignedDate) && $0.userId == currentUserId
+        }
         let completed = today.filter { $0.isCompleted }
         let uncompleted = today.filter { !$0.isCompleted }
         return uncompleted + completed
     }
-
+    
     var body: some View {
         NavigationStack {
             ZStack {
@@ -87,7 +92,7 @@ struct HomeView: View {
 
                         ScrollView(.horizontal, showsIndicators: false) {
                             HStack(spacing: 12) {
-                                ForEach(habits) { habit in
+                                ForEach(habits.filter({ $0.userId == currentUserId })) { habit in
                                     if habit.isSelected {
                                         HabitsCardView(
                                             habit: habit,
@@ -119,16 +124,16 @@ struct HomeView: View {
             Task {
                 try? await Task.sleep(nanoseconds: 100_000_000)
 
-                if progressList.isEmpty {
+                if playerProgress == nil {
                     let progress = PlayerProgress(
                         level: 1, currentXP: 0, xpForNextLevel: 100,
                         streak: 0, lastDailyReset: .distantPast,
-                        didCompleteDailyGoal: false
+                        didCompleteDailyGoal: false, userId: currentUserId
                     )
                     modelContext.insert(progress)
                 }
 
-                if habits.isEmpty { seedHabits() }
+                if habits.filter({ $0.userId == currentUserId }).isEmpty { seedHabits() }
 
                 try? await Task.sleep(nanoseconds: 100_000_000)
                 assignDailyMissions()
@@ -154,16 +159,16 @@ struct HomeView: View {
 
     private func seedHabits() {
         let defaults = [
-            Habit(title: "Workout", isSelected: false, icon: "figure.strengthtraining.traditional"),
-            Habit(title: "Read", isSelected: false, icon: "book"),
-            Habit(title: "Drink Water", isSelected: false, icon: "drop"),
-            Habit(title: "Walk", isSelected: false, icon: "figure.walk"),
-            Habit(title: "Meditate", isSelected: false, icon: "brain"),
-            Habit(title: "Journal", isSelected: false, icon: "square.and.pencil"),
-            Habit(title: "Stretch", isSelected: false, icon: "figure.cooldown"),
-            Habit(title: "Sleep Early", isSelected: false, icon: "bed.double"),
-            Habit(title: "Study Swift", isSelected: true, icon: "laptopcomputer"),
-            Habit(title: "No Sugar", isSelected: false, icon: "leaf")
+            Habit(title: "Workout", isSelected: false, icon: "figure.strengthtraining.traditional", userId: currentUserId),
+            Habit(title: "Read", isSelected: false, icon: "book", userId: currentUserId),
+            Habit(title: "Drink Water", isSelected: false, icon: "drop", userId: currentUserId),
+            Habit(title: "Walk", isSelected: false, icon: "figure.walk", userId: currentUserId),
+            Habit(title: "Meditate", isSelected: false, icon: "brain", userId: currentUserId),
+            Habit(title: "Journal", isSelected: false, icon: "square.and.pencil", userId: currentUserId),
+            Habit(title: "Stretch", isSelected: false, icon: "figure.cooldown", userId: currentUserId),
+            Habit(title: "Sleep Early", isSelected: false, icon: "bed.double", userId: currentUserId),
+            Habit(title: "Study Swift", isSelected: true, icon: "laptopcomputer", userId: currentUserId),
+            Habit(title: "No Sugar", isSelected: false, icon: "leaf", userId: currentUserId)
         ]
         for habit in defaults {
             modelContext.insert(habit)
@@ -171,9 +176,11 @@ struct HomeView: View {
     }
 
     private func assignDailyMissions() {
-        let today = missions.filter { Calendar.current.isDateInToday($0.assignedDate) }
+        let today = missions.filter {
+            Calendar.current.isDateInToday($0.assignedDate) && $0.userId == currentUserId
+        }
         guard today.isEmpty else { return }
-
+            
         let streak = playerProgress?.streak ?? 0
         let tier = min(streak / 3, 2)
 
@@ -205,7 +212,7 @@ struct HomeView: View {
                 rewardXP: template.xp(for: tier),
                 difficulty: tier + 1,
                 isCompleted: false,
-                relatedHabit: habit
+                relatedHabit: habit, userId: currentUserId
             )
             modelContext.insert(mission)
         }

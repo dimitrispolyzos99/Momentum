@@ -7,14 +7,18 @@
 
 import SwiftUI
 import SwiftData
+import FirebaseAuth
 
 struct HabitsView: View {
     @Environment(\.modelContext) private var modelContext
     @Query private var habits: [Habit]
     @Query private var missions: [Mission]
     @State private var searchText = ""
-    
     @State private var isShowingAddHabit = false
+    
+    private var currentUserId: String {
+            Auth.auth().currentUser?.uid ?? ""
+        }
     
     private var filteredHabits: [Habit] {
         if searchText.isEmpty {
@@ -61,7 +65,7 @@ struct HabitsView: View {
                 let newHabit = Habit(
                     title: title,
                     isSelected: true,
-                    icon: "checkmark.circle"
+                    icon: "checkmark.circle", userId: currentUserId
                 )
                 modelContext.insert(newHabit)
             }

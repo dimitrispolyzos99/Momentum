@@ -13,11 +13,12 @@ class Habit {
     var title: String
     var isSelected: Bool
     var icon: String
+    var userId: String
     
-    init(title: String, isSelected: Bool, icon: String) {
+    init(title: String, isSelected: Bool, icon: String, userId: String) {
         self.title = title
         self.isSelected = isSelected
         self.icon = icon
+        self.userId = userId
     }
 }
-

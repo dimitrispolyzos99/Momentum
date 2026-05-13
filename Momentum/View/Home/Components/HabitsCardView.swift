@@ -48,6 +48,3 @@ struct HabitsCardView: View {
     
 }
 
-#Preview {
-    HabitsCardView(habit: Habit(title: "Tennis", isSelected: true, icon: "tennis.racket"), onToggle: {})
-}

@@ -12,6 +12,7 @@ class HomeViewModel: ObservableObject {
     @Published var didLevelUp = false
     @Published var dailyGoal = false
     
+    
     func completeMission(_ mission: Mission, progress: PlayerProgress, missions: [Mission]) {
         mission.isCompleted.toggle()
         

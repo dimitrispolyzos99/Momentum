@@ -74,10 +74,3 @@ struct MissionCardView: View {
         .padding(.horizontal)
     }
 }
-
-#Preview {
-    MissionCardView(
-        mission: Mission(title: "Read a chapter", rewardXP: 50, difficulty: 1, isCompleted: true),
-        onToggle: {}
-    )
-}

@@ -16,13 +16,15 @@ class PlayerProgress {
     var streak: Int
     var lastDailyReset: Date
     var didCompleteDailyGoal: Bool
+    var userId: String
     
-    init(level: Int, currentXP: Int, xpForNextLevel: Int, streak: Int, lastDailyReset: Date, didCompleteDailyGoal: Bool) {
+    init(level: Int, currentXP: Int, xpForNextLevel: Int, streak: Int, lastDailyReset: Date, didCompleteDailyGoal: Bool, userId: String) {
         self.level = level
         self.currentXP = currentXP
         self.xpForNextLevel = xpForNextLevel
         self.streak = streak
         self.lastDailyReset = lastDailyReset
         self.didCompleteDailyGoal = didCompleteDailyGoal
+        self.userId = userId
     }
 }

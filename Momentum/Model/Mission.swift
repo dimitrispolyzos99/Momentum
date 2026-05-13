@@ -16,13 +16,15 @@ class Mission {
     var isCompleted: Bool
     var assignedDate: Date
     var relatedHabit: Habit?
+    var userId: String
     
-    init(title: String, rewardXP: Int, difficulty: Int, isCompleted: Bool, relatedHabit: Habit? = nil) {
+    init(title: String, rewardXP: Int, difficulty: Int, isCompleted: Bool, relatedHabit: Habit? = nil, userId: String) {
         self.title = title
         self.rewardXP = rewardXP
         self.difficulty = difficulty
         self.isCompleted = isCompleted
         self.assignedDate = Date()
         self.relatedHabit = relatedHabit
+        self.userId = userId
     }
 }
