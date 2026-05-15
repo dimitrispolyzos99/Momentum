@@ -13,7 +13,7 @@ struct RecentChat: Identifiable, Codable {
     let lastMessage: String
     let participants: [String]
     let timestamp: Date
-    let lastSenderId: String // Προσθέτουμε αυτό για να ξέρουμε ΠΟΙΟΣ το έστειλε
-    var isRead: Bool // Η κατάσταση του μηνύματος
+    let lastSenderId: String 
+    var isRead: Bool
     var user: User?
 }

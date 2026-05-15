@@ -1,80 +1,149 @@
-# 🔥 Momentum
+# Momentum — Gamified Habit Tracker
 
-**Momentum helps you build everyday habits and stay committed to them.**
-
-Turn your daily habits into an RPG-style adventure — complete missions, earn XP, level up, and keep your streak alive. Momentum makes self-improvement feel rewarding.
+> *Turn your daily habits into an RPG experience. Build streaks, earn XP, level up.*
 
 ---
 
-## 📸 Screenshots
+## Screenshots
 
-<p align="center">
-<img src="images/Home.png" width="25%"/>
-<img src="images/LevelUp.png" width="25%"/>
-<img src="images/Streak.png" width="25%"/>
-<img src="images/HabitSelection.png" width="25%"/>
+<p float="left">
+  <img src="images/Login.png" width="18%" />
+  <img src="images/SignUp.png" width="18%" />
+  <img src="images/Home.png" width="18%" />
+  <img src="images/LevelUp.png" width="18%" />
+  <img src="images/Streak.png" width="18%" />
+</p>
+
+<p float="left">
+  <img src="images/HabitSelection.png" width="18%" />
+  <img src="images/Chat.png" width="18%" />
 </p>
 
 ---
 
-## 🎮 How It Works
+## What is Momentum?
 
-1. **Choose your habits** — Select from a curated list of daily habits like Workout, Read, Meditate, Drink Water and more
-2. **Complete daily missions** — Each day Momentum generates personalized missions based on your selected habits
-3. **Earn XP and level up** — Every completed mission rewards you with XP. Fill the bar to reach the next level
-4. **Keep your streak alive** 🔥 — Complete missions daily to build your streak. Miss a day and it resets
-5. **Scale your challenge** — Every 3 days of streak your mission difficulty increases, keeping you always growing
+Momentum is a habit tracking app that works like an RPG. Every day you get a set of missions based on your selected habits. Complete them, earn XP, level up, and keep your streak alive. Miss a day — your streak resets. Simple, but surprisingly addictive.
+
+It started as a portfolio project. It ended up being something I actually use every day.
 
 ---
 
-## ✨ Features
+## Features
 
-- 🎯 **Daily Mission System** — Personalized missions generated from your selected habits with varying XP rewards
-- ⚡ **XP & Leveling System** — Earn XP by completing missions and level up with satisfying celebrations
-- 🔥 **Daily Streak Tracking** — Build consistency with a streak counter that resets if you miss a day
-- 📈 **Progressive Difficulty** — Mission goals scale every 3 days of streak to keep you challenged
-- 🏆 **On Fire Bonus** — Complete multiple missions in a row to trigger bonus XP rewards
-- 🔔 **Smart Notifications** — Morning and afternoon reminders to keep you on track
-- 🔍 **Habit Search** — Quickly find and manage your habits with built-in search
-- 💾 **Persistent Progress** — All data saved locally using SwiftData so your progress is never lost
-- 🎨 **Beautiful Dark UI** — Sleek purple themed design with smooth animations and celebration screens
-
----
-
-## 🛠 Tech Stack
-
-- **Swift**
-- **SwiftUI**
-- **SwiftData** — Local data persistence
-- **MVVM Architecture** — Clean separation of concerns
-- **UserNotifications** — Morning and afternoon habit reminders
+- **Daily Mission System** — missions are generated each morning based on your selected habits, with difficulty that scales every 3 days as your streak grows
+- **XP & Leveling** — complete missions to earn XP, level up, and get bonus XP when you hit your daily goal
+- **Streak Tracking** — consecutive days of hitting your daily goal build your streak. Miss a day and it resets — no mercy
+- **Firebase Authentication** — full sign up / login flow with email validation and secure token storage in the iOS Keychain
+- **Multi-User Support** — each user's habits, missions, and progress are completely isolated via Firestore. Switch accounts and see a clean slate
+- **Real-Time Chat** — users can message each other via Firestore-backed chat with unread indicators
+- **Push Notifications** — morning reminder at 9 AM to start your missions, and an evening check-in at 8 PM
+- **Swipe to Complete** — drag a mission card to the right to mark it done
+- **19 Unit Tests** — covering XP logic, level ups, streak resets, daily goal bonuses, and email validation
 
 ---
 
-## 🧠 What I Learned
+## Tech Stack
 
-- Implementing SwiftData in a real project for the first time
-- Building a notification system with scheduled daily reminders
-- Designing a gamification system — XP, levels, streaks and progressive difficulty
-- Managing complex daily state — mission resets, streak logic and XP calculations
-- Creating celebration animations and overlay screens in SwiftUI
-- Building a search system for dynamic filtering of habits
-
----
-
-## 🚀 Future Improvements
-
-- More habit categories
-- Weekly and monthly progress charts
-- Achievement badges for milestones
-- Social features — compare streaks with friends
-- App Store release
+| Area | Technology |
+|---|---|
+| UI | SwiftUI |
+| Architecture | MVVM + SOLID Principles |
+| Local Persistence | SwiftData |
+| Authentication | Firebase Auth |
+| Cloud Database | Firestore |
+| Secure Storage | iOS Keychain |
+| Async | async/await, Combine |
+| Testing | Swift Testing framework |
+| Notifications | UserNotifications |
 
 ---
 
-## 👨‍💻 Author
+## Project Structure
 
-Built by **Dimitris Polyzos** — iOS Developer in progress 🚀
+```
+Momentum/
+├── App/
+│   └── MomentumApp.swift
+├── Model/
+│   ├── Habit.swift
+│   ├── Mission.swift
+│   ├── MissionTemplate.swift
+│   ├── PlayerProgress.swift
+│   ├── Message.swift
+│   └── User.swift
+├── View/
+│   ├── Auth/
+│   ├── Home/
+│   │   └── Components/
+│   ├── Habits/
+│   └── Chat/
+├── ViewModel/
+│   ├── HomeViewModel.swift
+│   ├── LoginViewModel.swift
+│   ├── SignupViewModel.swift
+│   └── ChatViewModel.swift
+└── Service/
+    ├── AuthState.swift
+    ├── KeychainManager.swift
+    ├── NotificationManager.swift
+    ├── ChatService.swift
+    └── UserService.swift
+```
+
+---
+
+## Architecture Decisions
+
+**Why MVVM?**
+Views in Momentum are purely visual — they don't make decisions. All logic lives in ViewModels. This makes the code easier to read, easier to test, and easier to change without breaking things.
+
+**Why SOLID?**
+Each class has one job. `KeychainManager` handles the Keychain. `NotificationManager` handles notifications. `AuthState` listens to Firebase auth changes. When something breaks, you know exactly where to look.
+
+**Why SwiftData + Firestore together?**
+SwiftData handles fast local reads — the UI never waits for a network call. Firestore handles user identity and chat. Each SwiftData record carries a `userId` field that links it to the Firebase account, so multi-user support works correctly even on the same device.
+
+**Dependency Injection in tests**
+The `HomeViewModel` accepts a `PlayerProgress` and missions array from outside — it doesn't create them internally. This means unit tests can pass in controlled test data without needing a SwiftData container or Firebase connection.
+
+---
+
+## Unit Tests
+
+All 19 tests live in `MomentumTests/MomentumTests.swift` and test real ViewModel logic:
+
+- XP increases and decreases correctly when toggling missions
+- XP never goes below 0 at level 1
+- Level up triggers correctly when XP crosses the threshold
+- XP carries over after a level up
+- Daily goal bonus (150 XP) is awarded after 3 completions
+- Streak increases after hitting the daily goal
+- Bonus XP is not awarded twice
+- Streak resets when daily goal was missed
+- Streak is preserved when daily goal was hit
+- Mission reset triggers correctly on a new day
+- Daily reset doesn't run twice on the same day
+- Email validation accepts valid emails
+- Email validation rejects invalid formats
+- `canSubmit` is false when password or email is empty
+
+---
+
+## What I Learned Building This
+
+I built Momentum to push past tutorial-level Swift. The things that forced me to actually think:
+
+- Multi-user data isolation — it's not enough to just have auth. Every record needs to know who it belongs to.
+- Testing ViewModels that depend on SwiftData — the solution was to pass dependencies in from outside rather than create them internally. That led me to properly understand Dependency Injection.
+- Auth state management — instead of each View managing its own `isLoggedIn` flag, a single `AuthState` object listens to Firebase and drives the entire navigation tree.
+- SOLID in practice — I didn't set out to write SOLID code. I refactored toward it when I noticed things getting hard to change.
+
+---
+
+## Author
+
+**Dimitris Polyzos** — Self-taught iOS Developer, Athens, Greece
 
 - GitHub: [github.com/dimitrispolyzos99](https://github.com/dimitrispolyzos99)
 - LinkedIn: [linkedin.com/in/dimitris-polyzos-106373259](https://linkedin.com/in/dimitris-polyzos-106373259)

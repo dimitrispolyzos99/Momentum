@@ -18,7 +18,7 @@ struct NewMessageView: View {
             RadialGradient(colors: [Color.purple.opacity(0.35), Color.clear], center: .top, startRadius: 0, endRadius: 300)
                 .ignoresSafeArea()
             NavigationStack {
-                List(viewModel.users) { user in // <--- Εδώ χρησιμοποιούμε το 'users'
+                List(viewModel.users) { user in
                     NavigationLink {
                         ChatView(chatId: createChatId(with: user))
                     } label: {

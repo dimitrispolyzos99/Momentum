@@ -45,7 +45,6 @@ struct MainMessagesView: View {
         }
     }
     
-    // Η γραμμή για κάθε chat με το Indication (τελεία)
     private func recentChatRow(_ chat: RecentChat) -> some View {
         HStack(spacing: 15) {
             Circle()

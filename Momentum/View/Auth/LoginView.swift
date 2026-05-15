@@ -22,7 +22,6 @@ struct LoginView: View {
                 VStack(spacing: 28) {
                     Spacer()
 
-                    // Logo / Title
                     VStack(spacing: 8) {
                         Image(systemName: "bolt.fill")
                             .font(.system(size: 44))
@@ -37,7 +36,7 @@ struct LoginView: View {
 
                     Spacer().frame(height: 8)
 
-                    // Fields
+
                     VStack(spacing: 14) {
                         customField(icon: "envelope", placeholder: "Email",
                                     text: $viewModel.email, secure: false)
@@ -64,7 +63,7 @@ struct LoginView: View {
                         }
                     }
 
-                    // Buttons
+
                     if viewModel.isLoading {
                         ProgressView().tint(.purple)
                     } else {

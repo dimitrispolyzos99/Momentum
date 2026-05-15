@@ -8,14 +8,14 @@
 import SwiftUI
 
 struct ChatView: View {
-    // 1. Δεν αρχικοποιούμε το ViewModel εδώ "καρφωτά"
+
     @StateObject private var chatViewModel: ChatViewModel
     let chatId: String
     
-    // 2. Ο custom init που συνδέει το chatId με το ViewModel
+
     init(chatId: String) {
         self.chatId = chatId
-        // Χρησιμοποιούμε το _ για να αρχικοποιήσουμε το ίδιο το StateObject
+
         _chatViewModel = StateObject(wrappedValue: ChatViewModel(chatId: chatId))
     }
     
@@ -27,7 +27,7 @@ struct ChatView: View {
                 .ignoresSafeArea()
             
             VStack {
-                // 1. Η λίστα των μηνυμάτων
+
                 ScrollViewReader { proxy in
                     ScrollView {
                         LazyVStack(spacing: 12) {
@@ -37,7 +37,7 @@ struct ChatView: View {
                         }
                         .padding()
                     }
-                    // Αυτόματο scroll στο τελευταίο μήνυμα
+
                     .onChange(of: chatViewModel.messages.count) { _ in
                         withAnimation {
                             proxy.scrollTo(chatViewModel.messages.last?.id, anchor: .bottom)
@@ -47,7 +47,7 @@ struct ChatView: View {
                 
                 divider
                 
-                // 2. Η περιοχή πληκτρολόγησης
+
                 messageInputArea
             }
             .navigationTitle("Chat")
@@ -56,7 +56,7 @@ struct ChatView: View {
     }
 }
 
-// MARK: - UI Components
+
 extension ChatView {
     
     private func messageBubble(message: Message) -> some View {
@@ -66,7 +66,7 @@ extension ChatView {
             Text(message.text)
                 .padding(12)
                 .background(message.isFromCurrentUser ? Color.purple : Color.white.opacity(0.75))
-                .foregroundColor(message.isFromCurrentUser ? .white : .black)
+                .foregroundColor(.black)
                 .cornerRadius(16)
                 .frame(maxWidth: 250, alignment: message.isFromCurrentUser ? .trailing : .leading)
             

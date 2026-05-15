@@ -14,7 +14,6 @@ class HomeViewModel: ObservableObject {
     @Published var didLevelUp = false
     @Published var dailyGoal = false
 
-    // MARK: - Seed & Missions
 
     func seedHabits(context: ModelContext, userId: String) {
         let defaults = [

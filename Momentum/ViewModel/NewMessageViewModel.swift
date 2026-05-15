@@ -13,7 +13,7 @@ import Combine
 
 @MainActor
 class NewMessageViewModel: ObservableObject {
-    // Εδώ αποθηκεύουμε τους χρήστες που βρίσκουμε
+
     @Published var users = [User]()
     
     private let userService = UserService()
@@ -23,10 +23,9 @@ class NewMessageViewModel: ObservableObject {
     }
     
     func fetchUsers() {
-        // Καλούμε τον UserService για να φέρει τα δεδομένα
+
         userService.fetchUsers { [weak self] fetchedUsers in
             DispatchQueue.main.async {
-                // Ενημερώνουμε τη λίστα users που βλέπει το View
                 self?.users = fetchedUsers
             }
         }
