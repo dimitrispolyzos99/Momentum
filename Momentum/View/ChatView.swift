@@ -65,8 +65,9 @@ extension ChatView {
             
             Text(message.text)
                 .padding(12)
-                .background(message.isFromCurrentUser ? Color.purple : Color.white.opacity(0.2))
-                .foregroundColor(.black)                .cornerRadius(16)
+                .background(message.isFromCurrentUser ? Color.purple : Color.white.opacity(0.75))
+                .foregroundColor(message.isFromCurrentUser ? .white : .black)
+                .cornerRadius(16)
                 .frame(maxWidth: 250, alignment: message.isFromCurrentUser ? .trailing : .leading)
             
             if !message.isFromCurrentUser { Spacer() }
@@ -106,7 +107,4 @@ extension ChatView {
     NavigationStack {
         ChatView(chatId: "preview_id")
     }
-}
-#Preview {
-    ChatView(chatId: "123")
 }
