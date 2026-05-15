@@ -7,11 +7,11 @@
 ## Screenshots
 
 <p float="left">
-  <img src="images/Login.png" width="18%" />
-  <img src="images/SignUp.png" width="18%" />
-  <img src="images/Home.png" width="18%" />
-  <img src="images/LevelUp.png" width="18%" />
-  <img src="images/Streak.png" width="18%" />
+  <img src="Momentum/images/Login.png" width="18%" />
+  <img src="Momentum/images/SignUp.png" width="18%" />
+  <img src="Momentum/images/Home.png" width="18%" />
+  <img src="Momentum/images/LevelUp.png" width="18%" />
+  <img src="Momentum/images/Streak.png" width="18%" />
 </p>
 
 <p float="left">
