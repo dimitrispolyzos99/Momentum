@@ -21,10 +21,11 @@ struct HomeView: View {
     private var playerProgress: PlayerProgress? {
         progressList.first { $0.userId == currentUserId }
     }
+
     private var currentUserId: String {
         Auth.auth().currentUser?.uid ?? ""
     }
-    
+
     private var displayedMissions: [Mission] {
         let today = missions.filter {
             Calendar.current.isDateInToday($0.assignedDate) && $0.userId == currentUserId
@@ -33,77 +34,98 @@ struct HomeView: View {
         let uncompleted = today.filter { !$0.isCompleted }
         return uncompleted + completed
     }
-    
+
+    private var userHabits: [Habit] {
+        habits.filter { $0.userId == currentUserId && $0.isSelected }
+    }
+
     var body: some View {
         NavigationStack {
             ZStack {
-                Color.black
-                    .ignoresSafeArea()
-                RadialGradient(colors: [Color.purple.opacity(0.35), Color.clear], center: .top, startRadius: 0, endRadius: 300)
-                    .ignoresSafeArea()
+                // Background
+                Color.black.ignoresSafeArea()
+                RadialGradient(
+                    colors: [Color.purple.opacity(0.35), Color.clear],
+                    center: .top, startRadius: 0, endRadius: 300
+                ).ignoresSafeArea()
 
-                ScrollView {
-                    VStack(spacing: 18) {
+                ScrollView(showsIndicators: false) {
+                    VStack(spacing: 20) {
+
+                        // Level Card
                         if let progress = playerProgress {
                             LevelCardView(progress: progress)
                         }
-                        HStack{
-                            Button("Log out") {
-                                try? Auth.auth().signOut()
-                            }
-                            NavigationLink ("Chat") {
-                                MainMessagesView()
-                            }
-                            .padding()
-                            .foregroundColor(.purple)
-                        }
-                        Text("Today's Missions")
-                            .font(.title2)
-                            .bold()
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .foregroundColor(.white)
 
-                        ForEach(displayedMissions) { mission in
-                            MissionCardView(
-                                mission: mission,
-                                onToggle: {
-                                    if let progress = playerProgress {
-                                        viewModel.completeMission(mission, progress: progress, missions: displayedMissions)
-                                    }
+                        // Missions Section
+                        VStack(spacing: 10) {
+                            HStack {
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text("Today's Missions")
+                                        .font(.title2).bold()
+                                        .foregroundColor(.white)
+                                    Text("\(displayedMissions.filter { $0.isCompleted }.count)/\(displayedMissions.count) completed")
+                                        .font(.caption)
+                                        .foregroundColor(.white.opacity(0.5))
                                 }
-                            )
-                        }
-
-                        HStack {
-                            Text("Habits")
-                                .font(.title2)
-                                .bold()
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                                .foregroundColor(.white)
-
-                            Spacer()
-
-                            NavigationLink("View all") {
-                                HabitsView()
+                                Spacer()
                             }
-                            .padding()
-                            .foregroundColor(.purple)
+                            .padding(.horizontal)
+
+                            ForEach(displayedMissions) { mission in
+                                MissionCardView(
+                                    mission: mission,
+                                    onToggle: {
+                                        if let progress = playerProgress {
+                                            viewModel.completeMission(
+                                                mission,
+                                                progress: progress,
+                                                missions: displayedMissions
+                                            )
+                                        }
+                                    }
+                                )
+                            }
                         }
 
-                        ScrollView(.horizontal, showsIndicators: false) {
-                            HStack(spacing: 12) {
-                                ForEach(habits.filter({ $0.userId == currentUserId })) { habit in
-                                    if habit.isSelected {
-                                        HabitsCardView(
-                                            habit: habit,
-                                            onToggle: { habit.isSelected.toggle() }
-                                        )
+                        // Habits Section
+                        VStack(spacing: 10) {
+                            HStack {
+                                Text("Habits")
+                                    .font(.title2).bold()
+                                    .foregroundColor(.white)
+                                Spacer()
+                                NavigationLink("View all") {
+                                    HabitsView()
+                                }
+                                .font(.subheadline)
+                                .foregroundColor(.purple)
+                            }
+                            .padding(.horizontal)
+
+                            if userHabits.isEmpty {
+                                Text("No habits selected. Tap 'View all' to add some!")
+                                    .font(.caption)
+                                    .foregroundColor(.white.opacity(0.4))
+                                    .padding()
+                            } else {
+                                ScrollView(.horizontal, showsIndicators: false) {
+                                    HStack(spacing: 12) {
+                                        ForEach(userHabits) { habit in
+                                            HabitsCardView(
+                                                habit: habit,
+                                                onToggle: { habit.isSelected.toggle() }
+                                            )
+                                        }
                                     }
+                                    .padding(.horizontal)
                                 }
                             }
                         }
+
+                        Spacer().frame(height: 20)
                     }
-                    .padding()
+                    .padding(.vertical)
                 }
 
                 // Overlays
@@ -112,10 +134,34 @@ struct HomeView: View {
                         showLevelUp = false
                     }
                 }
-
                 if showDailyGoal {
-                    DailyGoalView {
-                        showDailyGoal = false
+                    DailyGoalView { showDailyGoal = false }
+                }
+            }
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button {
+                        try? Auth.auth().signOut()
+                    } label: {
+                        HStack(spacing: 4) {
+                            Image(systemName: "rectangle.portrait.and.arrow.right")
+                            Text("Log out")
+                                .font(.caption)
+                        }
+                        .foregroundColor(.white.opacity(0.6))
+                    }
+                }
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    NavigationLink {
+                        MainMessagesView()
+                    } label: {
+                        HStack(spacing: 4) {
+                            Image(systemName: "bubble.left.and.bubble.right.fill")
+                            Text("Chat")
+                                .font(.caption)
+                        }
+                        .foregroundColor(.purple)
                     }
                 }
             }
@@ -133,7 +179,9 @@ struct HomeView: View {
                     modelContext.insert(progress)
                 }
 
-                if habits.filter({ $0.userId == currentUserId }).isEmpty { seedHabits() }
+                if habits.filter({ $0.userId == currentUserId }).isEmpty {
+                    seedHabits()
+                }
 
                 try? await Task.sleep(nanoseconds: 100_000_000)
                 assignDailyMissions()
@@ -144,16 +192,10 @@ struct HomeView: View {
             }
         }
         .onChange(of: viewModel.didLevelUp) { _, newValue in
-            if newValue {
-                showLevelUp = true
-                viewModel.didLevelUp = false
-            }
+            if newValue { showLevelUp = true; viewModel.didLevelUp = false }
         }
         .onChange(of: viewModel.dailyGoal) { _, newValue in
-            if newValue {
-                showDailyGoal = true
-                viewModel.dailyGoal = false
-            }
+            if newValue { showDailyGoal = true; viewModel.dailyGoal = false }
         }
     }
 
@@ -170,9 +212,7 @@ struct HomeView: View {
             Habit(title: "Study Swift", isSelected: true, icon: "laptopcomputer", userId: currentUserId),
             Habit(title: "No Sugar", isSelected: false, icon: "leaf", userId: currentUserId)
         ]
-        for habit in defaults {
-            modelContext.insert(habit)
-        }
+        for habit in defaults { modelContext.insert(habit) }
     }
 
     private func assignDailyMissions() {
@@ -180,11 +220,10 @@ struct HomeView: View {
             Calendar.current.isDateInToday($0.assignedDate) && $0.userId == currentUserId
         }
         guard today.isEmpty else { return }
-            
+
         let streak = playerProgress?.streak ?? 0
         let tier = min(streak / 3, 2)
-
-        let selectedHabits = habits.filter { $0.isSelected }
+        let selectedHabits = habits.filter { $0.isSelected && $0.userId == currentUserId }
         let selectedHabitTitles = selectedHabits.map { $0.title }
 
         let habitTemplates = MissionTemplate.all
@@ -192,16 +231,14 @@ struct HomeView: View {
                 guard let habitTitle = template.habitTitle else { return false }
                 return selectedHabitTitles.contains(habitTitle)
             }
-            .shuffled()
-            .prefix(5)
+            .shuffled().prefix(5)
 
         var picked = Array(habitTemplates)
 
         if picked.count < 5 {
             let generalTemplates = MissionTemplate.all
                 .filter { $0.habitTitle == nil }
-                .shuffled()
-                .prefix(5 - picked.count)
+                .shuffled().prefix(5 - picked.count)
             picked += generalTemplates
         }
 
@@ -212,11 +249,16 @@ struct HomeView: View {
                 rewardXP: template.xp(for: tier),
                 difficulty: tier + 1,
                 isCompleted: false,
-                relatedHabit: habit, userId: currentUserId
+                relatedHabit: habit,
+                userId: currentUserId
             )
             modelContext.insert(mission)
         }
     }
+}
+
+#Preview {
+    HomeView()
 }
 
 #Preview {
