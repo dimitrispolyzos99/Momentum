@@ -95,9 +95,6 @@ struct LoginView: View {
                     Spacer()
                 }
                 .padding(.horizontal, 28)
-                .fullScreenCover(isPresented: $viewModel.isLoggedIn) {
-                    HomeView()
-                }
             }
             .sheet(isPresented: $isNewUser) {
                 SignupView()

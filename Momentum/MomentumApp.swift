@@ -9,21 +9,29 @@ import SwiftUI
 import SwiftData
 import UserNotifications
 import FirebaseCore
+import FirebaseAuth
 
 @main
 struct MomentumApp: App {
-    
+
+    @StateObject private var authState = AuthState()
+
     init() {
         requestNotificationPermission()
         FirebaseApp.configure()
     }
-    
+
     var body: some Scene {
         WindowGroup {
-            LoginView()
+            if authState.isLoggedIn {
+                HomeView()
+            } else {
+                LoginView()
+            }
         }
-        .modelContainer(for : [Habit.self, Mission.self, PlayerProgress.self])
+        .modelContainer(for: [Habit.self, Mission.self, PlayerProgress.self])
     }
+
     private func requestNotificationPermission() {
         UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, _ in
             if granted {
@@ -32,4 +40,4 @@ struct MomentumApp: App {
             }
         }
     }
-}	
+}
