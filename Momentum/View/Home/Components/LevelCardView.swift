@@ -6,14 +6,22 @@
 //
 
 import SwiftUI
+import FirebaseAuth
+import FirebaseFirestore
 
 struct LevelCardView: View {
     let progress: PlayerProgress
-    
+    @State private var username: String = ""
+
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack(alignment: .top) {
                 VStack(alignment: .leading, spacing: 4) {
+                    if !username.isEmpty {
+                        Text(username)
+                            .font(.system(size: 24, weight: .bold))
+                            .foregroundColor(.white)
+                    }
                     Text("Level \(progress.level)")
                         .font(.system(size: 36, weight: .black))
                         .foregroundColor(.white)
@@ -32,9 +40,9 @@ struct LevelCardView: View {
                         .foregroundColor(.white.opacity(0.6))
                 }
             }
-            
+
             Spacer().frame(height: 4)
-            
+
             HStack {
                 Text("\(progress.currentXP) XP")
                     .font(.caption)
@@ -44,7 +52,7 @@ struct LevelCardView: View {
                     .font(.caption)
                     .foregroundColor(.white.opacity(0.7))
             }
-            
+
             GeometryReader { geo in
                 ZStack(alignment: .leading) {
                     RoundedRectangle(cornerRadius: 8)
@@ -63,8 +71,8 @@ struct LevelCardView: View {
                             height: 10
                         )
                         .animation(.easeInOut(duration: 0.5), value: progress.currentXP)
-                    }
                 }
+            }
             .frame(height: 10)
         }
         .padding(20)
@@ -84,5 +92,16 @@ struct LevelCardView: View {
             }
         )
         .padding(.horizontal)
+        .task {
+            await fetchUsername()
+        }
+    }
+
+    private func fetchUsername() async {
+        guard let uid = Auth.auth().currentUser?.uid else { return }
+        let doc = try? await Firestore.firestore().collection("users").document(uid).getDocument()
+        if let name = doc?.data()?["fullname"] as? String {
+            await MainActor.run { username = name }
+        }
     }
 }

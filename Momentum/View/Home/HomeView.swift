@@ -180,11 +180,18 @@ struct HomeView: View {
                 }
 
                 if habits.filter({ $0.userId == currentUserId }).isEmpty {
-                    seedHabits()
+                    viewModel.seedHabits(context: modelContext, userId: currentUserId)
                 }
 
                 try? await Task.sleep(nanoseconds: 100_000_000)
-                assignDailyMissions()
+                
+                viewModel.assignDailyMissions(
+                    context: modelContext,
+                    habits: habits,
+                    missions: missions,
+                    progress: playerProgress,
+                    userId: currentUserId
+                )
 
                 if let progress = playerProgress {
                     viewModel.checkDailyReset(missions: missions, progress: progress)
@@ -196,63 +203,6 @@ struct HomeView: View {
         }
         .onChange(of: viewModel.dailyGoal) { _, newValue in
             if newValue { showDailyGoal = true; viewModel.dailyGoal = false }
-        }
-    }
-
-    private func seedHabits() {
-        let defaults = [
-            Habit(title: "Workout", isSelected: false, icon: "figure.strengthtraining.traditional", userId: currentUserId),
-            Habit(title: "Read", isSelected: false, icon: "book", userId: currentUserId),
-            Habit(title: "Drink Water", isSelected: false, icon: "drop", userId: currentUserId),
-            Habit(title: "Walk", isSelected: false, icon: "figure.walk", userId: currentUserId),
-            Habit(title: "Meditate", isSelected: false, icon: "brain", userId: currentUserId),
-            Habit(title: "Journal", isSelected: false, icon: "square.and.pencil", userId: currentUserId),
-            Habit(title: "Stretch", isSelected: false, icon: "figure.cooldown", userId: currentUserId),
-            Habit(title: "Sleep Early", isSelected: false, icon: "bed.double", userId: currentUserId),
-            Habit(title: "Study Swift", isSelected: true, icon: "laptopcomputer", userId: currentUserId),
-            Habit(title: "No Sugar", isSelected: false, icon: "leaf", userId: currentUserId)
-        ]
-        for habit in defaults { modelContext.insert(habit) }
-    }
-
-    private func assignDailyMissions() {
-        let today = missions.filter {
-            Calendar.current.isDateInToday($0.assignedDate) && $0.userId == currentUserId
-        }
-        guard today.isEmpty else { return }
-
-        let streak = playerProgress?.streak ?? 0
-        let tier = min(streak / 3, 2)
-        let selectedHabits = habits.filter { $0.isSelected && $0.userId == currentUserId }
-        let selectedHabitTitles = selectedHabits.map { $0.title }
-
-        let habitTemplates = MissionTemplate.all
-            .filter { template in
-                guard let habitTitle = template.habitTitle else { return false }
-                return selectedHabitTitles.contains(habitTitle)
-            }
-            .shuffled().prefix(5)
-
-        var picked = Array(habitTemplates)
-
-        if picked.count < 5 {
-            let generalTemplates = MissionTemplate.all
-                .filter { $0.habitTitle == nil }
-                .shuffled().prefix(5 - picked.count)
-            picked += generalTemplates
-        }
-
-        for template in picked {
-            let habit = selectedHabits.first { $0.title == template.habitTitle }
-            let mission = Mission(
-                title: template.title(for: tier),
-                rewardXP: template.xp(for: tier),
-                difficulty: tier + 1,
-                isCompleted: false,
-                relatedHabit: habit,
-                userId: currentUserId
-            )
-            modelContext.insert(mission)
         }
     }
 }

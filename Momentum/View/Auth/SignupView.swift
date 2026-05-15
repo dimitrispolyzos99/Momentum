@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct SignupView: View {
-    @StateObject private var viewModel = LoginViewModel()
+    @StateObject private var viewModel = SignupViewModel()
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {
