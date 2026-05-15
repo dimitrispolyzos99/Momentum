@@ -15,8 +15,8 @@
 </p>
 
 <p float="left">
-  <img src="images/HabitSelection.png" width="18%" />
-  <img src="images/Chat.png" width="18%" />
+  <img src="Momentum/images/HabitSelection.png" width="18%" />
+  <img src="Momentum/images/Chat.png" width="18%" />
 </p>
 
 ---
